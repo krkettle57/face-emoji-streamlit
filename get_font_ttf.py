@@ -1,9 +1,9 @@
 import urllib.request
-from pathlib import Path
+
+from const import NOTE_EMOJI_FONT_FILEPATH
 
 FONT_URL = "https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf"
 
 data = urllib.request.urlopen(FONT_URL).read()
-savedir = Path(__file__).parent.resolve().joinpath("data/fonts/")
-savedir.mkdir(exist_ok=True)
-savedir.joinpath("NotoColorEmoji.ttf").write_bytes(data)
+NOTE_EMOJI_FONT_FILEPATH.parent.resolve().mkdir(exist_ok=True)
+NOTE_EMOJI_FONT_FILEPATH.write_bytes(data)

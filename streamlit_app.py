@@ -1,29 +1,35 @@
-from enum import Enum, auto
+from enum import Enum
 from pathlib import Path
 
-import augly.image as imaugs
 import face_recognition
-from augly.utils.base_paths import EMOJI_DIR
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
+
+from const import NOTE_EMOJI_FONT_FILEPATH
 
 BBox = tuple[int, int, int, int]  # top, right, bottom, left
 
 
-class SmileysEmoji(Enum):
-    grinning_face = auto()
+class Emoji(Enum):
+    grinning = "😀"
+    pleading_face = "🥺"
 
 
-def overlay_emoji(image: Image, face_bbox: BBox, emoji_type: SmileysEmoji) -> Image:
-    emoji_path = Path(EMOJI_DIR, "smileys", f"{emoji_type.name}.png")
-    W, H = image.size
-    top, right, bottom, left = face_bbox
+def get_emoji_size(bbox: BBox) -> int:
+    top, right, bottom, left = bbox
+    size = max(bottom - top, right - left)
+    return size
 
-    x_pos, y_pos = float(left) / W, float(top) / H
-    emoji_size = max((right - left) / W, (bottom - top) / H)
-    emoji_aug = imaugs.OverlayEmoji(emoji_path=emoji_path, opacity=1.0, emoji_size=emoji_size, x_pos=x_pos, y_pos=y_pos)
-    overlayed_image = emoji_aug(image)
 
-    return overlayed_image
+def get_emoji_position(bbox: BBox) -> tuple[int, int]:
+    top, right, bottom, left = bbox
+    return (left, top)
+
+
+def draw_emoji(image: Image, emoji: Emoji, size: int, pos: tuple[int, int]) -> None:
+    unicode_text = emoji.value
+    font = ImageFont.truetype(str(NOTE_EMOJI_FONT_FILEPATH), 109)
+    draw = ImageDraw.Draw(image)
+    draw.text(pos, unicode_text, font=font, embedded_color=True)
 
 
 def face_detection(path: Path) -> list[BBox]:
@@ -34,10 +40,12 @@ def face_detection(path: Path) -> list[BBox]:
 
 
 if __name__ == "__main__":
-    image_path = Path("./images/001_man_ok.jpg")
+    image_path = Path("./data/images/friends.jpg")
     face_bboxes = face_detection(image_path)
 
-    overlayed_image = Image.open(image_path)
+    image = Image.open(image_path)
     for face_bbox in face_bboxes:
-        overlayed_image = overlay_emoji(overlayed_image, face_bbox, SmileysEmoji.grinning_face)
-    overlayed_image.save("hoge.png")
+        size = get_emoji_size(face_bbox)
+        pos = get_emoji_position(face_bbox)
+        draw_emoji(image, Emoji.grinning, size, pos)
+    image.save("hoge.png")
