@@ -4,5 +4,5 @@
 
 1. `pip install poetry cmake`
 1. `poetry install`
-1. `python get_font_ttf.py`
+1. `python initialize.py`
 1. `poetry run streamlit run streamlit_app.py`

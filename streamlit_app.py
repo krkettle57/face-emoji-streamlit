@@ -3,9 +3,9 @@ from pathlib import Path
 import face_recognition
 from PIL import Image
 
-from const import EMOJI_IMAGE_DIR, EXAMPLE_IMAGE_DIR
-from models import Emoji
-from type import BBox
+from fes.const import EMOJI_IMAGE_DIR, EXAMPLE_IMAGE_DIR
+from fes.models import Emoji
+from fes.type import BBox
 
 
 def get_emoji_size(bbox: BBox) -> int:
@@ -21,7 +21,7 @@ def get_emoji_position(bbox: BBox) -> tuple[int, int]:
 
 def draw_emoji(im: Image, emoji: Emoji, size: int, pos: tuple[int, int]) -> None:
     emoji_path = EMOJI_IMAGE_DIR.joinpath(f"{emoji.name}.png")
-    emoji_im = Image.open(emoji_path).convert("RGBA").resize((size, size))
+    emoji_im = Image.open(emoji_path).resize((size, size))
     im.paste(emoji_im, pos, emoji_im)
 
 

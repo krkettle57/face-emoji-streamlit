@@ -3,8 +3,8 @@ import urllib.request
 from PIL import Image, ImageDraw, ImageFont
 from PIL.ImageFont import FreeTypeFont
 
-from const import EMOJI_IMAGE_DIR, FONT_DIR, FONT_URL, NOTE_EMOJI_FONT_FILEPATH
-from models import Emoji
+from fes.const import EMOJI_IMAGE_DIR, FONT_DIR, FONT_URL, NOTE_EMOJI_FONT_FILEPATH
+from fes.models import Emoji
 
 
 def get_font_ttf() -> None:
