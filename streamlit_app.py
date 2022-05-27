@@ -1,44 +1,43 @@
-from pathlib import Path
-
-import face_recognition
+import streamlit as st
 from PIL import Image
 
-from fes.const import EMOJI_IMAGE_DIR, EXAMPLE_IMAGE_DIR
+from fes.const import EXAMPLE_IMAGE_DIR
+from fes.face_annotate import get_image_face_hided_by_emoji
 from fes.models import Emoji
-from fes.type import BBox
 
 
-def get_emoji_size(bbox: BBox) -> int:
-    top, right, bottom, left = bbox
-    size = max(bottom - top, right - left)
-    return size
+def example_page() -> None:
+    st.title("顔を絵文字で隠せるアプリ")
+    image_paths = {
+        EXAMPLE_IMAGE_DIR.joinpath("man.jpg"): "男性",
+        EXAMPLE_IMAGE_DIR.joinpath("woman.jpg"): "女性",
+        EXAMPLE_IMAGE_DIR.joinpath("multi.jpg"): "三銃士",
+    }
+    image_path = st.selectbox(
+        "サンプル画像",
+        list(image_paths.keys()),
+        format_func=lambda x: image_paths[x],
+    )
 
+    emoji = st.selectbox(
+        "顔文字",
+        list(Emoji),
+        format_func=lambda x: f"{x.value} {x.name}",  # x.valueのみだと顔文字が見切れる
+    )
 
-def get_emoji_position(bbox: BBox) -> tuple[int, int]:
-    top, _, _, left = bbox
-    return (left, top)
+    page_left, page_right = st.columns([1, 1])
+    page_left.subheader("入力画像")
+    page_right.subheader("実行結果")
 
+    if image_path is not None:
+        image = Image.open(image_path)
+        page_left.image(image)
 
-def draw_emoji(im: Image, emoji: Emoji, size: int, pos: tuple[int, int]) -> None:
-    emoji_path = EMOJI_IMAGE_DIR.joinpath(f"{emoji.name}.png")
-    emoji_im = Image.open(emoji_path).resize((size, size))
-    im.paste(emoji_im, pos, emoji_im)
-
-
-def face_detection(image_path: Path) -> list[BBox]:
-    image = face_recognition.load_image_file(image_path)
-    face_bboxes = face_recognition.face_locations(image)
-    # TODO: [int, Any, Any, int]の時の例外処理
-    return face_bboxes
+    if page_left.button("実行"):
+        with st.spinner("実行中..."):
+            output = get_image_face_hided_by_emoji(image_path, emoji)
+        page_right.image(output)
 
 
 if __name__ == "__main__":
-    image_path = EXAMPLE_IMAGE_DIR.joinpath("man.jpg")
-    face_bboxes = face_detection(image_path)
-
-    image = Image.open(image_path)
-    for face_bbox in face_bboxes:
-        size = get_emoji_size(face_bbox)
-        pos = get_emoji_position(face_bbox)
-        draw_emoji(image, Emoji.grinning, size, pos)
-    image.save("hoge.png")
+    example_page()

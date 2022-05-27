@@ -1,4 +1,4 @@
-# Face Hide by Emoji
+# Face Emoji Streamlit
 
 ## 開始方法
 
