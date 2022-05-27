@@ -212,7 +212,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-data/*
-
 # -- Custom --
-!data/images/
+data/fonts
+data/images/emoji
