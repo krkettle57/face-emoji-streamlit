@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import streamlit as st
 from PIL import Image
 
@@ -44,6 +46,16 @@ def render() -> None:
         with st.spinner("実行中..."):
             output = get_image_face_hided_by_emoji(image, emoji)
         page_right.image(output)
+
+        buf = BytesIO()
+        image.save(buf, format="PNG")
+        byte_im = buf.getvalue()
+        page_right.download_button(
+            label="ダウンロード",
+            data=byte_im,
+            file_name="result.png",
+            mime="image/png",
+        )
 
 
 if __name__ == "__main__":
